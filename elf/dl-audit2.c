@@ -91,8 +91,8 @@ magic_audit_check_supported (void)
 				  (void *) X64NC_CheckHealth);
       if (ret == -ENOSYS)
 	{
-	  // g_audit_ctx.info = NotSupported;
-	  // return false;
+	  g_audit_ctx.info = NotSupported;
+	  return false;
 	}
       g_audit_ctx.info = Supported;
       return true;
