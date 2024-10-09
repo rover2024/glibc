@@ -255,6 +255,7 @@ _dl_close_worker (struct link_map *map, bool force)
 #ifdef SHARED
 	  /* Auditing checkpoint: we remove an object.  */
 	  _dl_audit_objclose (imap);
+	  _dl_audit_objclose_x64nc (imap);
 #endif
 
 	  /* This object must not be used anymore.  */

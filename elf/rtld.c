@@ -1064,6 +1064,9 @@ load_audit_modules (struct link_map *main_map, struct audit_list *audit_list)
     {
       _dl_audit_objopen (main_map, LM_ID_BASE);
       _dl_audit_objopen (&GL(dl_rtld_map), LM_ID_BASE);
+      
+      _dl_audit_objopen_x64nc (main_map, LM_ID_BASE, NULL);
+      _dl_audit_objopen_x64nc (&GL(dl_rtld_map), LM_ID_BASE, NULL);
     }
 }
 
@@ -1958,8 +1961,10 @@ dl_main (const ElfW(Phdr) *phdr,
 
 #ifdef NEED_DL_SYSINFO_DSO
   /* Now that the audit modules are opened, call la_objopen for the vDSO.  */
-  if (GLRO(dl_sysinfo_map) != NULL)
+  if (GLRO(dl_sysinfo_map) != NULL) {
     _dl_audit_objopen (GLRO(dl_sysinfo_map), LM_ID_BASE);
+    _dl_audit_objopen_x64nc(GLRO(dl_sysinfo_map), LM_ID_BASE, NULL);
+  }
 #endif
 
   /* Load all the libraries specified by DT_NEEDED entries.  If LD_PRELOAD

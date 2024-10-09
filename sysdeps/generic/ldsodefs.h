@@ -1378,6 +1378,36 @@ void DL_ARCH_FIXUP_ATTRIBUTE _dl_audit_pltexit (struct link_map *l,
 						const void *inregs,
 						void *outregs)
   attribute_hidden;
+
+// =====================================================================
+
+/* Call the la_objopen from the audit modules for the link_map L on the
+   namespace identification NSID.  */
+void _dl_audit_objopen_x64nc (struct link_map *l, Lmid_t nsid, const char *target)
+  attribute_hidden;
+
+/* Call the la_objclose from the audit modules for the link_map L.  */
+void _dl_audit_objclose_x64nc (struct link_map *l)
+  attribute_hidden;
+
+/* Call the la_preinit from the audit modules for the link_map L.  */
+void _dl_audit_preinit_x64nc (struct link_map *l);
+
+/* Call the la_symbind{32,64} from the audit modules for the link_map L.  If
+   RELOC_RESULT is NULL it assumes the symbol to be bind-now and will set
+   the flags with LA_SYMB_NOPLTENTER | LA_SYMB_NOPLTEXIT prior calling
+   la_symbind{32,64}.  */
+void _dl_audit_symbind_x64nc (struct link_map *l,
+			const void *reloc, const ElfW(Sym) *defsym,
+			DL_FIXUP_VALUE_TYPE *value, lookup_t result, bool lazy)
+  attribute_hidden;
+/* Same as _dl_audit_symbind, but also sets LA_SYMB_DLSYM flag.  */
+void _dl_audit_symbind_alt_x64nc (struct link_map *l, const ElfW(Sym) *ref,
+			    void **value, lookup_t result);
+rtld_hidden_proto (_dl_audit_symbind_alt_x64nc)
+
+// =====================================================================
+
 #endif /* SHARED */
 
 #if PTHREAD_IN_LIBC && defined SHARED

@@ -381,3 +381,5 @@ _dl_audit_pltexit (struct link_map *l, ElfW(Word) reloc_arg,
       afct = afct->next;
     }
 }
+
+#include "dl-audit2.c"

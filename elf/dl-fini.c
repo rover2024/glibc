@@ -115,6 +115,7 @@ _dl_fini (void)
 #ifdef SHARED
 		  /* Auditing checkpoint: another object closed.  */
 		  _dl_audit_objclose (l);
+		  _dl_audit_objclose_x64nc (l);
 #endif
 		}
 

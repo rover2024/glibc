@@ -147,15 +147,26 @@ elf_dynamic_do_Rel (struct link_map *map, struct r_scope_elem *scope[],
 	      elf_machine_rel (map, scope, r, sym, rversion, r_addr_arg,
 			       skip_ifunc);
 #if defined SHARED
-	      if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_JMP_SLOT
-		  && GLRO(dl_naudit) > 0)
+		if (GLRO(dl_naudit) > 0)
 		{
-		  struct link_map *sym_map
-		    = RESOLVE_MAP (map, scope, &sym, rversion,
-				   ELF_MACHINE_JMP_SLOT);
-		  if (sym != NULL)
-		    _dl_audit_symbind (map, NULL, r, sym, r_addr_arg, sym_map,
-				       false);
+	      	if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_JMP_SLOT)
+			{
+				struct link_map *sym_map
+					= RESOLVE_MAP (map, scope, &sym, rversion,
+						ELF_MACHINE_JMP_SLOT);
+				if (sym != NULL)
+					_dl_audit_symbind (map, NULL, r, sym, r_addr_arg, sym_map,
+							false);
+			}
+		}
+		if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_GLOB_DAT)
+		{
+			struct link_map *sym_map
+				= RESOLVE_MAP (map, scope, &sym, rversion,
+					ELF_MACHINE_GLOB_DAT);
+			if (sym != NULL)
+				_dl_audit_symbind_x64nc (map, r, sym, r_addr_arg, sym_map,
+						false);
 		}
 #endif
 	    }
@@ -179,7 +190,7 @@ elf_dynamic_do_Rel (struct link_map *map, struct r_scope_elem *scope[],
 	{
 	  for (; r < end; ++r)
 	    {
-	      const ElfW(Sym) *sym = &symtab[ELFW(R_SYM) (r->r_info)];
+	      const ElfW(Sym) *sym = &symtab[ELFW(R_SYM) (r->r_info)]; // Elf64_Sym
 	      void *const r_addr_arg = (void *) (l_addr + r->r_offset);
 # ifdef ELF_MACHINE_IRELATIVE
 	      if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_IRELATIVE)
@@ -193,16 +204,27 @@ elf_dynamic_do_Rel (struct link_map *map, struct r_scope_elem *scope[],
 	      elf_machine_rel (map, scope, r, sym, NULL, r_addr_arg,
 			       skip_ifunc);
 # if defined SHARED
-	      if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_JMP_SLOT
-		  && GLRO(dl_naudit) > 0)
+		if (GLRO(dl_naudit) > 0) {
+			if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_JMP_SLOT)
+			{
+				struct link_map *sym_map
+					= RESOLVE_MAP (map, scope, &sym,
+						(struct r_found_version *) NULL,
+						ELF_MACHINE_JMP_SLOT);
+				if (sym != NULL)
+					_dl_audit_symbind (map, NULL, r, sym,r_addr_arg, sym_map,
+							false);
+			}
+		}
+		if (ELFW(R_TYPE) (r->r_info) == ELF_MACHINE_GLOB_DAT)
 		{
-		  struct link_map *sym_map
-		    = RESOLVE_MAP (map, scope, &sym,
-				   (struct r_found_version *) NULL,
-				   ELF_MACHINE_JMP_SLOT);
-		  if (sym != NULL)
-		    _dl_audit_symbind (map, NULL, r, sym,r_addr_arg, sym_map,
-				       false);
+			struct link_map *sym_map
+				= RESOLVE_MAP (map, scope, &sym,
+					(struct r_found_version *) NULL,
+					ELF_MACHINE_GLOB_DAT);
+			if (sym != NULL)
+				_dl_audit_symbind_x64nc (map, r, sym, r_addr_arg, sym_map,
+						false);
 		}
 # endif
 	    }

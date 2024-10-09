@@ -56,6 +56,11 @@ _dl_sym_post (lookup_t result, const ElfW(Sym) *ref, void *value,
         match = _dl_sym_find_caller_link_map (caller);
       _dl_audit_symbind_alt (match, ref, &value, result);
     }
+  {
+    if (match == NULL)
+      match = _dl_sym_find_caller_link_map (caller);
+    _dl_audit_symbind_alt_x64nc (match, ref, &value, result);
+  }
 #endif
   return value;
 }

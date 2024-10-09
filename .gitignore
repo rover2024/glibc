@@ -44,3 +44,7 @@ core
 /linuxthreads_db
 /rtkaio
 *.pyc
+
+build
+.cache
+.vscode

@@ -1365,7 +1365,7 @@ cannot enable executable stack as shared object requires");
      case processing requires accessing those segments.  Scan program
      headers backward so that PT_NOTE can be skipped if PT_GNU_PROPERTY
      exits.  */
-  for (ph = &l->l_phdr[l->l_phnum]; ph != l->l_phdr; --ph)
+  for (ph = &l->l_phdr[l->l_phnum]; ph != l->l_phdr; --ph) {
     switch (ph[-1].p_type)
       {
       case PT_NOTE:
@@ -1375,6 +1375,56 @@ cannot enable executable stack as shared object requires");
 	_dl_process_pt_gnu_property (l, fd, &ph[-1]);
 	break;
       }
+  }
+    
+    // =====================================================================
+
+    // Find my section
+#ifdef SHARED
+    char *x64nc_section_content = NULL;
+    do {
+      // Read sections
+      const ElfW(Shdr) *shdr;
+      const ElfW(Shdr) *sh;
+      char *shstrtab;
+      size_t maplength2;
+      char *name;
+
+      maplength2 = header->e_shnum * sizeof (ElfW(Shdr));
+      shdr = alloca (maplength2);
+      if ((size_t) __pread64_nocancel (fd, (void *) shdr, maplength2, header->e_shoff) != maplength2)
+      {
+        break;
+      }
+
+      // Read string table
+      sh = &shdr[header->e_shstrndx];
+      shstrtab = alloca(sh->sh_size);
+      if ((size_t) __pread64_nocancel (fd, (void *) shstrtab, sh->sh_size, sh->sh_offset) != sh->sh_size)
+      {
+        break;
+      }
+
+      for (sh = shdr; sh < shdr + header->e_shnum; ++sh) {
+          if (strcmp(&shstrtab[sh->sh_name], ".x64nc_host") == 0) {
+              goto found_x64nc;
+          }
+      }
+
+      break;
+
+    found_x64nc:
+      name = alloca(sh->sh_size + 1);
+      name[sh->sh_size] = '\0';
+      if ((size_t) __pread64_nocancel (fd, (void *) name, sh->sh_size, sh->sh_offset) != sh->sh_size)
+      {
+        break;
+      }
+      x64nc_section_content = name;
+    } while (0);
+#endif
+    
+  // =====================================================================
 
   /* We are done mapping in the file.  We no longer need the descriptor.  */
   if (__glibc_unlikely (__close_nocancel (fd) != 0))
@@ -1511,8 +1561,10 @@ cannot enable executable stack as shared object requires");
 
 #ifdef SHARED
   /* Auditing checkpoint: we have a new object.  */
-  if (!GL(dl_ns)[l->l_ns]._ns_loaded->l_auditing)
+  if (!GL(dl_ns)[l->l_ns]._ns_loaded->l_auditing) {
     _dl_audit_objopen (l, nsid);
+    _dl_audit_objopen_x64nc (l, nsid, x64nc_section_content);
+  }
 #endif
 
   return l;
